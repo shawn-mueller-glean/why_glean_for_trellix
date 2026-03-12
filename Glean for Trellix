@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Why Glean for Trellix</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #f5f5f7;
+      --bg-elevated: #ffffff;
+      --text-main: #1d1d1f;
+      --text-muted: #6e6e73;
+      --border-subtle: rgba(0,0,0,0.06);
+      --accent: #0071e3;
+      --accent-soft: rgba(0,113,227,0.12);
+      --shadow-soft: 0 1px 3px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.06);
+      --radius-card: 16px;
+      --radius-pill: 999px;
+      --spacing-xs: 8px;
+      --spacing-sm: 12px;
+      --spacing-md: 16px;
+      --spacing-lg: 24px;
+      --spacing-xl: 32px;
+      --spacing-xxl: 48px;
+      --transition-fast: 0.18s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      background: radial-gradient(circle at top left, #f9fafb 0, #f5f5f7 40%, #f0f1f5 100%);
+      color: var(--text-main);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: var(--spacing-xxl) var(--spacing-md) var(--spacing-xl);
+    }
+
+    .shell {
+      width: 100%;
+      max-width: 1120px;
+      background: linear-gradient(145deg, rgba(255,255,255,0.96), rgba(249,249,252,0.96));
+      border-radius: 28px;
+      box-shadow: var(--shadow-soft);
+      padding: var(--spacing-xl);
+      position: relative;
+      overflow: hidden;
+    }
+
+    @media (max-width: 768px) {
+      .shell {
+        border-radius: 0;
+        box-shadow: none;
+        padding: var(--spacing-lg);
+      }
+    }
+
+    .shell::before {
+      content: "";
+      position: absolute;
+      inset: -120px;
+      background:
+        radial-gradient(circle at 10% 0, rgba(0,113,227,0.12), transparent 55%),
+        radial-gradient(circle at 90% 20%, rgba(127,86,217,0.10), transparent 55%),
+        radial-gradient(circle at 50% 120%, rgba(16,185,129,0.08), transparent 55%);
+      opacity: 0.85;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2.5fr);
+      gap: var(--spacing-xl);
+      align-items: center;
+      margin-bottom: var(--spacing-xxl);
+      animation: fadeUp 0.5s ease forwards;
+      opacity: 0;
+    }
+
+    @media (max-width: 840px) {
+      .hero {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .hero-title {
+      font-size: 32px;
+      font-weight: 650;
+      letter-spacing: -0.02em;
+      margin: 0 0 var(--spacing-md);
+    }
+
+    .hero-subtitle {
+      font-size: 16px;
+      color: var(--text-muted);
+      max-width: 420px;
+      margin-bottom: var(--spacing-lg);
+      line-height: 1.6;
+    }
+
+    .pill {
+      border-radius: var(--radius-pill);
+      padding: 6px 14px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border: 1px solid rgba(255,255,255,0.8);
+      background: rgba(255,255,255,0.75);
+      color: var(--text-muted);
+      backdrop-filter: blur(14px);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .pill-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #10b981, #22c55e);
+      box-shadow: 0 0 0 4px rgba(34,197,94,0.2);
+    }
+
+    .hero-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .tag-chip {
+      border-radius: var(--radius-pill);
+      padding: 4px 10px;
+      border: 1px solid rgba(148,163,184,0.6);
+      background: rgba(248,250,252,0.9);
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .hero-cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-md);
+      align-items: center;
+    }
+
+    .btn-primary {
+      border-radius: var(--radius-pill);
+      padding: 10px 20px;
+      border: none;
+      background: linear-gradient(135deg, #0071e3, #0f8cf5);
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: default;
+      box-shadow: 0 8px 20px rgba(0,113,227,0.25);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+    }
+
+    .btn-primary span.icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      border: 2px solid rgba(255,255,255,0.9);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 26px rgba(0,113,227,0.35);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.97);
+      box-shadow: 0 6px 16px rgba(0,113,227,0.3);
+    }
+
+    .hero-note {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .hero-note strong {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    .hero-right {
+      justify-self: stretch;
+    }
+
+    .halo-card {
+      position: relative;
+      border-radius: 22px;
+      background: rgba(255,255,255,0.9);
+      padding: var(--spacing-lg);
+      box-shadow: 0 20px 45px rgba(15,23,42,0.18);
+      overflow: hidden;
+      backdrop-filter: blur(22px);
+      border: 1px solid rgba(255,255,255,0.85);
+    }
+
+    .halo-card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at 0 0, rgba(0,113,227,0.3), transparent 58%),
+        radial-gradient(circle at 100% 0, rgba(244,114,182,0.25), transparent 55%);
+      opacity: 0.75;
+      mix-blend-mode: soft-light;
+      pointer-events: none;
+    }
+
+    .halo-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .logo-row {
+      display: flex;
+      justify-content: space-between;
+      gap: var(--spacing-md);
+      align-items: center;
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .logo-pill {
+      padding: 6px 14px;
+      border-radius: var(--radius-pill);
+      background: rgba(15,23,42,0.72);
+      color: #e5e7eb;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-pill span.dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, #fefce8, #22c55e);
+      box-shadow: 0 0 0 4px rgba(34,197,94,0.22);
+    }
+
+    .peer-logos {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+      font-size: 11px;
+      color: #e5e7eb;
+      opacity: 0.9;
+    }
+
+    .peer-logo-chip {
+      padding: 5px 10px;
+      border-radius: var(--radius-pill);
+      background: rgba(15,23,42,0.7);
+      border: 1px solid rgba(148,163,184,0.5);
+      white-space: nowrap;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: var(--spacing-md);
+    }
+
+    @media (max-width: 520px) {
+      .hero-stats {
+        grid-template-columns: repeat(2, minmax(0,1fr));
+      }
+    }
+
+    .stat-chip {
+      border-radius: 16px;
+      padding: 10px 12px;
+      background: rgba(15,23,42,0.85);
+      color: #e5e7eb;
+      border: 1px solid rgba(148,163,184,0.65);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-height: 70px;
+    }
+
+    .stat-value {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: #cbd5f5;
+    }
+
+    .section {
+      margin-bottom: var(--spacing-xxl);
+      animation: fadeUp 0.5s ease forwards;
+      opacity: 0;
+    }
+
+    .section:nth-of-type(2) { animation-delay: 0.05s; }
+    .section:nth-of-type(3) { animation-delay: 0.1s; }
+    .section:nth-of-type(4) { animation-delay: 0.15s; }
+    .section:nth-of-type(5) { animation-delay: 0.2s; }
+
+    .section-heading {
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .section-kicker {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 650;
+      letter-spacing: -0.01em;
+      margin: 0;
+    }
+
+    .section-subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: var(--spacing-xs);
+      max-width: 620px;
+      line-height: 1.6;
+    }
+
+    .challenges-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--spacing-lg);
+    }
+
+    @media (max-width: 920px) {
+      .challenges-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      .challenges-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .challenge-card {
+      background: rgba(255,255,255,0.9);
+      border-radius: var(--radius-card);
+      padding: var(--spacing-lg);
+      box-shadow: 0 10px 28px rgba(15,23,42,0.08);
+      border: 1px solid var(--border-subtle);
+      position: relative;
+      overflow: hidden;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
+    }
+
+    .challenge-card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background: radial-gradient(circle at 10% 0, rgba(0,113,227,0.12), transparent 60%);
+      opacity: 0;
+      transition: opacity var(--transition-fast);
+      pointer-events: none;
+    }
+
+    .challenge-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 40px rgba(15,23,42,0.18);
+      border-color: rgba(0,113,227,0.3);
+      background: #ffffff;
+    }
+
+    .challenge-card:hover::before {
+      opacity: 1;
+    }
+
+    .chip-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--text-muted);
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .challenge-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .challenge-body {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--spacing-lg);
+    }
+
+    @media (max-width: 960px) {
+      .pillars-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .pillar-card {
+      position: relative;
+      border-radius: var(--radius-card);
+      background: #ffffff;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 10px 26px rgba(15,23,42,0.08);
+      padding: var(--spacing-lg);
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
+    }
+
+    .pillar-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 18px 42px rgba(15,23,42,0.2);
+      border-color: rgba(0,113,227,0.35);
+      background: linear-gradient(145deg, #ffffff, #f5f7fb);
+    }
+
+    .pillar-card.active {
+      border-color: var(--accent);
+      box-shadow: 0 20px 50px rgba(15,23,42,0.26);
+      background: linear-gradient(145deg, #ffffff, #eef4ff);
+    }
+
+    .pillar-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      font-size: 16px;
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .pillar-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .pillar-tagline {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .pillar-detail {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.25s ease;
+    }
+
+    .pillar-card.active .pillar-detail {
+      max-height: 260px;
+    }
+
+    .pillar-expand {
+      position: absolute;
+      right: var(--spacing-lg);
+      top: var(--spacing-lg);
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.5);
+      background: rgba(255,255,255,0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: var(--text-muted);
+      backdrop-filter: blur(16px);
+      transition: transform var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
+    }
+
+    .pillar-card.active .pillar-expand {
+      transform: rotate(45deg);
+      border-color: rgba(0,113,227,0.6);
+      color: var(--accent);
+      background: #ffffff;
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .tab {
+      padding: 7px 14px;
+      border-radius: var(--radius-pill);
+      font-size: 13px;
+      background: rgba(255,255,255,0.8);
+      border: 1px solid rgba(148,163,184,0.5);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+    }
+
+    .tab:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(15,23,42,0.12);
+    }
+
+    .tab.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+      box-shadow: 0 12px 26px rgba(0,113,227,0.35);
+    }
+
+    .usecase-panel {
+      display: none;
+      background: rgba(255,255,255,0.94);
+      border-radius: var(--radius-card);
+      border: 1px solid var(--border-subtle);
+      padding: var(--spacing-lg);
+      box-shadow: 0 14px 34px rgba(15,23,42,0.12);
+    }
+
+    .usecase-panel.active {
+      display: block;
+    }
+
+    .usecase-header {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .usecase-sub {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .usecase-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: var(--spacing-md);
+    }
+
+    @media (max-width: 720px) {
+      .usecase-list {
+        grid-template-columns: minmax(0,1fr);
+      }
+    }
+
+    .usecase-item {
+      border-radius: 12px;
+      padding: var(--spacing-md);
+      background: #f5f5f7;
+      border: 1px solid rgba(226,232,240,0.9);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .usecase-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .usecase-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .metrics-band {
+      border-radius: 20px;
+      background: radial-gradient(circle at top left, rgba(0,113,227,0.15), transparent 55%),
+                  radial-gradient(circle at bottom right, rgba(16,185,129,0.2), transparent 60%),
+                  #020617;
+      padding: var(--spacing-xl);
+      color: #e5e7eb;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metrics-band::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% -20%, rgba(248,250,252,0.3), transparent 60%);
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .metrics-inner {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 4fr);
+      gap: var(--spacing-xl);
+      align-items: center;
+    }
+
+    @media (max-width: 820px) {
+      .metrics-inner {
+        grid-template-columns: minmax(0,1fr);
+      }
+    }
+
+    .metrics-left-title {
+      font-size: 20px;
+      font-weight: 650;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .metrics-left-body {
+      font-size: 14px;
+      color: #cbd5f5;
+      max-width: 360px;
+      line-height: 1.6;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: var(--spacing-md);
+    }
+
+    @media (max-width: 620px) {
+      .metric-grid {
+        grid-template-columns: repeat(2, minmax(0,1fr));
+      }
+    }
+
+    .metric-card {
+      border-radius: 18px;
+      background: rgba(15,23,42,0.92);
+      border: 1px solid rgba(148,163,184,0.8);
+      padding: var(--spacing-md);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-height: 88px;
+    }
+
+    .metric-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #9ca3af;
+    }
+
+    .metric-value {
+      font-size: 20px;
+      font-weight: 650;
+    }
+
+    .metric-caption {
+      font-size: 12px;
+      color: #d1d5db;
+    }
+
+    .footer-strip {
+      margin-top: var(--spacing-xl);
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-sm);
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .footer-tag {
+      border-radius: var(--radius-pill);
+      padding: 4px 10px;
+      border: 1px solid rgba(148,163,184,0.6);
+      background: rgba(248,250,252,0.9);
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <main class="shell" aria-label="Why Glean for Trellix – interactive infographic">
+      <section class="hero" aria-labelledby="hero-title">
+        <div>
+          <div class="pill">
+            <span class="pill-dot"></span>
+            Work AI for security‑first companies
+          </div>
+          <h1 id="hero-title" class="hero-title">
+            Why Glean for Trellix
+          </h1>
+          <p class="hero-subtitle">
+            A security‑first Work AI platform that unifies Trellix’s knowledge across tools and powers governed search and agents for high‑stakes security workflows.
+          </p>
+          <div class="hero-tags">
+            <span class="tag-chip">Security operations</span>
+            <span class="tag-chip">Product &amp; engineering</span>
+            <span class="tag-chip">Support &amp; PS</span>
+            <span class="tag-chip">Sales &amp; SEs</span>
+          </div>
+          <div class="hero-cta-row">
+            <button class="btn-primary" type="button" aria-label="Core story: Why Glean for Trellix">
+              <span class="icon">▶</span>
+              Core Story
+            </button>
+            <span class="hero-note">
+              <strong>Audience:</strong> Trellix security, engineering, support, PS, and GTM leaders.
+            </span>
+          </div>
+        </div>
+
+        <div class="hero-right">
+          <div class="halo-card" aria-label="Peer signal and impact highlights">
+            <div class="halo-inner">
+              <div class="logo-row">
+                <div class="logo-pill">
+                  <span class="dot"></span>
+                  Trusted by peers
+                </div>
+                <div class="peer-logos" aria-label="Representative peers">
+                  <span class="peer-logo-chip">Databricks</span>
+                  <span class="peer-logo-chip">Rubrik</span>
+                  <span class="peer-logo-chip">Palo Alto Networks</span>
+                  <span class="peer-logo-chip">Zscaler</span>
+                </div>
+              </div>
+              <div class="hero-stats" aria-label="Impact highlights">
+                <div class="stat-chip">
+                  <div class="stat-value" data-countup="2400000">$0</div>
+                  <div class="stat-label">Annual productivity savings</div>
+                </div>
+                <div class="stat-chip">
+                  <div class="stat-value" data-countup="47">0%</div>
+                  <div class="stat-label">Efficiency gain in agent populations</div>
+                </div>
+                <div class="stat-chip">
+                  <div class="stat-value" data-countup="300">0+</div>
+                  <div class="stat-label">Hours saved per month in support</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="challenges-title">
+        <header class="section-heading">
+          <div class="section-kicker">2. Trellix’s challenge landscape</div>
+          <h2 id="challenges-title" class="section-title">What’s slowing Trellix down today</h2>
+          <p class="section-subtitle">
+            High‑stakes security and customer work run across dozens of tools, with too much manual effort and fragmented AI experiments.
+          </p>
+        </header>
+        <div class="challenges-grid" role="list">
+          <article class="challenge-card" role="listitem">
+            <div class="chip-label">Fragmented knowledge</div>
+            <h3 class="challenge-title">Siloed security content</h3>
+            <p class="challenge-body">
+              Detection &amp; response knowledge is scattered across XDR/SIEM, case tools, runbooks, threat intel, Confluence, Jira, email, Slack, and data platforms. Analysts rebuild the story by hand for every incident.
+            </p>
+          </article>
+
+          <article class="challenge-card" role="listitem">
+            <div class="chip-label">Expensive manual work</div>
+            <h3 class="challenge-title">High‑cost, high‑stakes workflows</h3>
+            <p class="challenge-body">
+              SOC, IR, and threat research teams spend hours researching events, hunting for owners and mitigations, and re‑creating context. GTM, SEs, and support struggle to find the right deck, proof point, or security answer in time.
+            </p>
+          </article>
+
+          <article class="challenge-card" role="listitem">
+            <div class="chip-label">AI sprawl</div>
+            <h3 class="challenge-title">Inconsistent, unmanaged AI</h3>
+            <p class="challenge-body">
+              Point copilots in individual products create overlapping spend and inconsistent answers, with no single governance layer for prompts, data, models, or actions.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="pillars-title">
+        <header class="section-heading">
+          <div class="section-kicker">3. Why Glean is different for Trellix</div>
+          <h2 id="pillars-title" class="section-title">Security‑grade Work AI, end‑to‑end</h2>
+          <p class="section-subtitle">
+            Glean gives Trellix a security‑first architecture, an enterprise knowledge graph, and a governed agent platform—so AI is safe, consistent, and actually useful.
+          </p>
+        </header>
+
+        <div class="pillars-grid" aria-label="Key pillars">
+          <article class="pillar-card active" data-pillar>
+            <button class="pillar-expand" type="button" aria-label="Toggle details for Security-first architecture">+</button>
+            <div class="pillar-icon" aria-hidden="true">🔒</div>
+            <h3 class="pillar-title">A. Security‑first architecture</h3>
+            <p class="pillar-tagline">
+              Single‑tenant by design, with SaaS and cloud‑prem options when data residency and control matter most.
+            </p>
+            <div class="pillar-detail">
+              <ul>
+                <li>Isolated single‑tenant deployment per customer; no data cross‑pollination.</li>
+                <li>SaaS (hosted by Glean on GCP) or cloud‑prem in Trellix’s own GCP/AWS account.</li>
+                <li>SOC&nbsp;2 Type&nbsp;II, ISO&nbsp;27001, ISO&nbsp;42001, TX‑RAMP; strong encryption in transit and at rest.</li>
+                <li>SSO‑enforced access and RBAC; Trellix chooses cloud region, data in scope, and LLM providers.</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="pillar-card" data-pillar>
+            <button class="pillar-expand" type="button" aria-label="Toggle details for Enterprise knowledge graph">+</button>
+            <div class="pillar-icon" aria-hidden="true">🕸</div>
+            <h3 class="pillar-title">B. Enterprise knowledge graph</h3>
+            <p class="pillar-tagline">
+              One graph for Trellix’s people, systems, content, and activity—grounding every search and agent in reality.
+            </p>
+            <div class="pillar-detail">
+              <ul>
+                <li>Connects 100+ apps: XDR/SIEM, Jira, Confluence, GitHub, Salesforce, ServiceNow, Zendesk, email, chat, data platforms, and more.</li>
+                <li>Understands people (roles, teams, ownership), systems (how services and tools relate), and content (authority, freshness, usage).</li>
+                <li>Every search and agent is permission‑aware and context‑aware by default.</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="pillar-card" data-pillar>
+            <button class="pillar-expand" type="button" aria-label="Toggle details for Governed agents & AI">+</button>
+            <div class="pillar-icon" aria-hidden="true">🤖</div>
+            <h3 class="pillar-title">C. Governed agents &amp; AI</h3>
+            <p class="pillar-tagline">
+              A single control plane for secure, auditable AI workflows across Trellix’s ecosystem.
+            </p>
+            <div class="pillar-detail">
+              <ul>
+                <li>Define data, model, and action policies once; enforce them everywhere Glean runs.</li>
+                <li>Protect against prompt injections, data exfiltration, and unapproved model usage.</li>
+                <li>Standardize how SOC, product, support, and GTM teams build and ship agents.</li>
+              </ul>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="usecases-title">
+        <header class="section-heading">
+          <div class="section-kicker">4. Trellix-relevant use cases</div>
+          <h2 id="usecases-title" class="section-title">Where to start—and how to expand</h2>
+          <p class="section-subtitle">
+            Start with a few flagship workflows in security, engineering, support, and sales. Then expand Glean as the Work AI front door for the whole company.
+          </p>
+        </header>
+
+        <nav class="tabs" aria-label="Use case categories">
+          <button class="tab active" data-tab-target="soc" type="button">A. Security ops &amp; IR</button>
+          <button class="tab" data-tab-target="eng" type="button">B. Product &amp; engineering</button>
+          <button class="tab" data-tab-target="support" type="button">C. Support, PS &amp; TAMs</button>
+          <button class="tab" data-tab-target="sales" type="button">D. Sales &amp; SEs</button>
+          <button class="tab" data-tab-target="onboarding" type="button">E. KM &amp; onboarding</button>
+        </nav>
+
+        <section id="panel-soc" class="usecase-panel active" aria-label="Security operations & incident response">
+          <h3 class="usecase-header">A. Security operations &amp; incident response</h3>
+          <p class="usecase-sub">
+            Move from alert to understanding in seconds, with better documentation and less manual glue.
+          </p>
+          <div class="usecase-list">
+            <div class="usecase-item">
+              <div class="usecase-label">Analyst workflow</div>
+              <div class="usecase-title">Event &amp; incident research agent</div>
+              <p>
+                Correlates XDR/SIEM alerts, tickets, email, chat, runbooks, threat intel, and past incidents into a single narrative: what happened, blast radius, known mitigations, and similar past cases.
+              </p>
+            </div>
+            <div class="usecase-item">
+              <div class="usecase-label">Quality &amp; audit</div>
+              <div class="usecase-title">Incident documentation &amp; post‑mortems</div>
+              <p>
+                Autogenerates timelines and post‑incident drafts from tickets and collaboration threads so engineers can focus on analysis and corrective actions, not copy‑paste work.
+              </p>
+            </div>
+            <div class="usecase-item">
+              <div class="usecase-label">Risk visibility</div>
+              <div class="usecase-title">CVE &amp; threat intel navigator</div>
+              <p>
+                Answers “Where are we exposed to CVE‑XXXX today?” and “Who owns remediation?” by pulling configs, asset inventories, tickets, mitigations, and owners into one view.
+              </p>
+            </div>
+            <div class="usecase-item">
+              <div class="usecase-label">Ramp time</div>
+              <div class="usecase-title">SOC onboarding buddy</div>
+              <p>
+                New analysts learn Trellix’s tools, SOPs, and historical incidents through natural‑language Q&amp;A, shrinking time‑to‑independence without extra shadowing.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section id="panel-eng" class="usecase-panel" aria-label="Product & engineering">
+          <h3 class="usecase-header">B. Product &amp; engineering</h3>
+          <p class="usecase-sub">
+            Ship features, detectors, and fixes faster with full context across code, designs, incidents, and customers.
+          </p>
+          <div class="usecase-list">
+            <div class="usecase-item">
+              <div class="usecase-label">Incident-driven dev</div>
+              <div class="usecase-title">Code + design search</div>
+              <p>
+                Single search across GitHub, Jira, Confluence, and docs to find detection logic, pipelines, APIs, and how similar issues were fixed before—for example, “Where do we enrich this telemetry field?”
+              </p>
+            </div>
+            <div class="usecase-item">
+              <div class="usecase-label">Security accelerators</div>
+              <div class="usecase-title">Threat &amp; platform agents</div>
+              <p>
+                Agents answer “What changed in this service?”, “How does this detector pipeline work?”, or “Where else do we see this pattern?” using Trellix’s own code and runbooks.
+              </p>
+            </div>
+            <div class="usecase-item">
+              <div class="usecase-label">Onboarding</div>
+              <div class="usecase-title">New‑hire acceleration</div>
+              <p>
+                Reuse Databricks‑style patterns where unified search and agents eliminated tens of thousands of onboarding hours and multimillion‑dollar productivity drag.
+              </p>
+            </div>
+            <div class="usecase-item">
+              <div class="usecase-label">Platform strategy</div>
+              <div class="usecase-title">Embedded Work AI in Trellix products</div>
+              <p>
+                Use Glean’s APIs and web SDK to ground in‑product assistants in real Trellix knowledge, with consistent permissions and governance across all surfaces.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section id="panel-support" class="usecase-panel" aria-label="Support, PS, and TAMs">
+          <h3 class="usecase-header">C. Customer support, PS, and TAMs</h3>
+          <p class="usecase-sub">
+            Shorten time‑to‑answer and make Trellix’s expertise visible on every customer touchpoint.
+          </p>
+          <div class="usecase-list">
+            <div class="usecase-item">
+              <div class="usecase-label">Ticket handling</div>
+              <div class="usecase-title">Unified support answer engine</div>
+              <p>
+                One search across KBs, product docs, prior tickets, engineering notes, and release docs. Surfaces the most authoritative, up‑to‑date content first, so agents don’t guess which article or deck is latest.
+              </p>
+            </div>
+            <div class="usecase-item">
+              <div class="usecase-label">Contact centers</div>
+              <div class="usecase-title">T‑Mobile–style efficiency gains</div>
+              <p>
+                Mirror patterns where large organizations cut call resolution time, saw double‑digit efficiency gains, and unlocked meaningful hard‑dollar savings in productivity and staffing.
+              </p>
+            </div>
+            <div class="usecase-item">
+              <div class="usecase-label">TAM workflows</div>
+              <div class="usecase-title">360° customer view for TAMs &amp; PS</div>
+              <p>
+                TAMs and PS see a customer’s architecture, case history, commitments, and risks in one place, reducing time spent “finding things” and keeping renewals and expansions on track.
+              </p>
+            </div>
+            <div class="usecase-item">
+              <div class="usecase-label">Scale</div>
+              <div class="usecase-title">Embedded self‑service</div>
+              <p>
+                Embed Glean in portals and product surfaces so customers can answer common questions themselves, freeing PS for complex, high‑value engagements.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section id="panel-sales" class="usecase-panel" aria-label="Sales & SEs">
+          <h3 class="usecase-header">D. Sales &amp; SEs</h3>
+          <p class="usecase-sub">
+            Win more security platform deals with stronger prep and crisper security answers.
+          </p>
+          <div class="usecase-list">
+            <div class="usecase-item">
+              <div class="usecase-label">Meeting prep</div>
+              <div class="usecase-title">Customer 360 for sellers</div>
+              <p>
+                Before a call, sellers and SEs see opportunity notes, key stakeholders, security asks, POC results, open risks, and the best‑fit deck or talk track for that account in seconds.
+              </p>
+            </div>
+            <div class="usecase-item">
+              <div class="usecase-label">Security reviews</div>
+              <div class="usecase-title">RFx &amp; questionnaire assistant</div>
+              <p>
+                Auto‑surface the latest SOC reports, ISO certifications, pen tests, data‑flow diagrams, and approved security language for DDQs, RFIs, and RFQs—reducing back‑and‑forth with security teams.
+              </p>
+            </div>
+            <div class="usecase-item">
+              <div class="usecase-label">Deal strategy</div>
+              <div class="usecase-title">Deal strategy copilot</div>
+              <p>
+                Suggests next best actions, reference customers, and content based on similar won deals—rooted in Trellix’s own history rather than generic sales guidance.
+              </p>
+            </div>
+            <div class="usecase-item">
+              <div class="usecase-label">Field agility</div>
+              <div class="usecase-title">Mobile‑first field support</div>
+              <p>
+                Reps answer “Do you integrate with X?”, “How do you compare to Y?”, or “Send me your latest security overview” on the fly from mobile or the browser extension.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section id="panel-onboarding" class="usecase-panel" aria-label="Knowledge management & onboarding">
+          <h3 class="usecase-header">E. Knowledge management &amp; onboarding</h3>
+          <p class="usecase-sub">
+            Turn Trellix’s tribal knowledge into a durable asset that accelerates every new hire.
+          </p>
+          <div class="usecase-list">
+            <div class="usecase-item">
+              <div class="usecase-label">Ramp time</div>
+              <div class="usecase-title">Role‑specific onboarding copilots</div>
+              <p>
+                Role‑based agents guide SEs, PMs, engineers, CSMs, support, PS, and analysts through “first 30 days” docs, examples, and norms tailored to their function.
+              </p>
+            </div>
+            <div class="usecase-item">
+              <div class="usecase-label">Enablement ROI</div>
+              <div class="usecase-title">Discoverable enablement</div>
+              <p>
+                Glean ranks content by authority, freshness, and usage so the best‑performing assets show up first and “which deck is latest?” stops being a question.
+              </p>
+            </div>
+            <div class="usecase-item">
+              <div class="usecase-label">Search adoption</div>
+              <div class="usecase-title">Pure Storage–style front door</div>
+              <p>
+                Make Work AI the front door to documentation and tribal knowledge, mirroring patterns where companies saw onboarding satisfaction and efficiency gains across departments.
+              </p>
+            </div>
+            <div class="usecase-item">
+              <div class="usecase-label">Expert leverage</div>
+              <div class="usecase-title">De‑risk key experts</div>
+              <p>
+                Capture patterns used by senior architects, threat researchers, and principal SEs so others can reuse their approaches without another meeting or Slack thread.
+              </p>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section class="section" aria-labelledby="metrics-title">
+        <div class="metrics-band">
+          <div class="metrics-inner">
+            <div>
+              <h2 id="metrics-title" class="metrics-left-title">
+                5. Metrics &amp; social proof
+              </h2>
+              <p class="metrics-left-body">
+                Glean already acts as the Work AI layer for security‑sensitive, engineering‑heavy organizations. Trellix can plug into the same proven patterns and outcomes.
+              </p>
+            </div>
+            <div class="metric-grid" aria-label="Representative outcomes">
+              <article class="metric-card">
+                <div class="metric-label">Engineering &amp; onboarding</div>
+                <div class="metric-value" data-countup="32400">0</div>
+                <div class="metric-caption">
+                  Hours of onboarding and engineering time unlocked annually at scale.
+                </div>
+              </article>
+              <article class="metric-card">
+                <div class="metric-label">Support efficiency</div>
+                <div class="metric-value" data-countup="47">0%</div>
+                <div class="metric-caption">
+                  Efficiency gain in large agent populations after rolling out Work AI search and agents.
+                </div>
+              </article>
+              <article class="metric-card">
+                <div class="metric-label">Annual savings</div>
+                <div class="metric-value" data-countup="20000000">$0</div>
+                <div class="metric-caption">
+                  Hard‑dollar savings from faster resolution, staffing leverage, and reduced re‑work.
+                </div>
+              </article>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-strip">
+          <span class="footer-tag">Single Work AI fabric</span>
+          <span class="footer-tag">Security‑grade governance</span>
+          <span class="footer-tag">Agents your teams will actually use</span>
+          <span class="footer-tag">“One secure Work AI platform to power Trellix.”</span>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    document.querySelectorAll('[data-pillar]').forEach(function(card) {
+      card.addEventListener('click', function(e) {
+        if (e.target.closest('a') && !e.target.closest('.pillar-expand')) return;
+        var isActive = card.classList.contains('active');
+        document.querySelectorAll('[data-pillar]').forEach(function(c) {
+          c.classList.remove('active');
+        });
+        if (!isActive) {
+          card.classList.add('active');
+        }
+      });
+    });
+
+    var tabs = document.querySelectorAll('.tab');
+    var panels = {
+      soc: document.getElementById('panel-soc'),
+      eng: document.getElementById('panel-eng'),
+      support: document.getElementById('panel-support'),
+      sales: document.getElementById('panel-sales'),
+      onboarding: document.getElementById('panel-onboarding')
+    };
+
+    tabs.forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        var target = tab.getAttribute('data-tab-target');
+
+        tabs.forEach(function(t) { t.classList.remove('active'); });
+        tab.classList.add('active');
+
+        Object.keys(panels).forEach(function(key) {
+          if (key === target) {
+            panels[key].classList.add('active');
+          } else {
+            panels[key].classList.remove('active');
+          }
+        });
+      });
+    });
+
+    function animateCountUp(el, target, duration) {
+      var start = 0;
+      var startTime = null;
+      var isCurrency = el.textContent.trim().startsWith('$');
+      var isPercent = el.textContent.trim().endsWith('%');
+
+      function format(value) {
+        var rounded = Math.round(value);
+        if (isCurrency) {
+          return '$' + rounded.toLocaleString();
+        }
+        if (isPercent) {
+          return rounded.toLocaleString() + '%';
+        }
+        return rounded.toLocaleString();
+      }
+
+      function step(timestamp) {
+        if (!startTime) startTime = timestamp;
+        var progress = Math.min((timestamp - startTime) / duration, 1);
+        var current = start + (target - start) * progress;
+        el.textContent = format(current);
+        if (progress < 1) {
+          window.requestAnimationFrame(step);
+        }
+      }
+
+      window.requestAnimationFrame(step);
+    }
+
+    window.addEventListener('load', function() {
+      var statEls = document.querySelectorAll('[data-countup]');
+      statEls.forEach(function(el) {
+        var raw = el.getAttribute('data-countup');
+        var value = parseInt(raw, 10);
+        if (!isNaN(value)) {
+          animateCountUp(el, value, 1100);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
